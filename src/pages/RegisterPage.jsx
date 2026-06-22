@@ -18,7 +18,11 @@ const RegisterPage = ({ API }) => {
       localStorage.setItem('token', res.data.access_token);
       navigate('/dashboard');
     } catch (e) {
-      setError(e.response?.data?.detail || 'Registration failed. Please try again.');
+      const detail = e.response?.data?.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map(d => d.msg).join(', ')
+        : (detail || e.message || 'Registration failed. Please try again.');
+      setError(msg);
     } finally {
       setLoading(false);
     }

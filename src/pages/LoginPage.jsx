@@ -17,7 +17,11 @@ const LoginPage = ({ API }) => {
       localStorage.setItem('token', res.data.access_token);
       navigate('/dashboard');
     } catch (e) {
-      setError(e.response?.data?.detail || 'Login failed. Check your credentials.');
+      const detail = e.response?.data?.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map(d => d.msg).join(', ')
+        : (detail || e.message || 'Login failed. Check your credentials.');
+      setError(msg);
     } finally {
       setLoading(false);
     }
