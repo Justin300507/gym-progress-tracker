@@ -12,4 +12,4 @@ class Workout(Base):
     date = Column(DateTime, nullable=False)
     notes = Column(Text)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="workouts")

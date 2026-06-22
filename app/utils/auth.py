@@ -47,7 +47,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     # Import User model lazily to avoid circular imports
     try:
-        from app.models.user import User
+        from app.models.users import User
         user = db.query(User).filter(User.id == int(user_id)).first()
     except Exception:
         raise credentials_exception
