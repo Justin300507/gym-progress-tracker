@@ -1,0 +1,47 @@
+{
+  "decisions": [
+    {
+      "agent": "product_manager",
+      "decision": "product_spec_created",
+      "rationale": "Track workouts, sets, reps, and progress in a sleek PWA.",
+      "data": {
+        "features": 5,
+        "user_stories": 6,
+        "must_have": [
+          "Workout Logging",
+          "Progress Visualization",
+          "Personal Records Dashboard"
+        ]
+      }
+    },
+    {
+      "agent": "architect",
+      "decision": "architecture_created",
+      "rationale": "15 endpoints across 7 files",
+      "data": {
+        "endpoints": 15
+      }
+    },
+    {
+      "agent": "tech_lead",
+      "decision": "constraints_set",
+      "rationale": "No tech review performed",
+      "data": {
+        "critical_issues": 0,
+        "auth_endpoints": 0,
+        "pagination_required": 0
+      }
+    },
+    {
+      "agent": "orchestrator",
+      "decision": "pipeline_complete",
+      "rationale": "V6 score: 61/100",
+      "data": {
+        "total_time": 39.28,
+        "can_export": false
+      }
+    }
+  ],
+  "conflicts": [],
+  "shared_context_keys": []
+}

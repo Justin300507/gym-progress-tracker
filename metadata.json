@@ -1,0 +1,473 @@
+{
+  "project_name": "gym_progress_tracker",
+  "description": "",
+  "plan": {
+    "project_name": "gym_progress_tracker",
+    "display_name": "Gym Progress Tracker",
+    "features": [
+      "Create, edit, and delete workouts with multiple exercises and sets, storing date, reps, weight, and notes.",
+      "Weekly charts showing total volume, lift frequency, and personal record trends.",
+      "Aggregated view of max weight, reps, and volume per exercise with edit capability."
+    ],
+    "tech_stack": {
+      "backend": "FastAPI",
+      "database": "SQLite",
+      "auth": "JWT",
+      "frontend": "React + Vite"
+    },
+    "db_entities": [
+      "User",
+      "Workout",
+      "ExerciseEntry",
+      "Set",
+      "PersonalRecord"
+    ],
+    "api_modules": [
+      "auth",
+      "users",
+      "workouts",
+      "exercise_entries",
+      "sets",
+      "personal_records",
+      "reminders",
+      "stats"
+    ],
+    "user_stories": [
+      {
+        "role": "registered user",
+        "want": "log a new workout with date, exercises, sets, reps, and weight",
+        "acceptance_criteria": [
+          "User can open a 'New Workout' screen after authentication",
+          "User can add multiple exercises, each with multiple sets, specifying reps and weight",
+          "After saving, the workout appears in the workout list with the correct timestamp"
+        ]
+      },
+      {
+        "role": "registered user",
+        "want": "view my weekly progress chart",
+        "acceptance_criteria": [
+          "Chart displays total volume per week for the past 8 weeks",
+          "Hovering over a data point shows the week range and volume",
+          "Chart updates automatically after a new workout is saved"
+        ]
+      },
+      {
+        "role": "registered user",
+        "want": "set a rest timer between sets",
+        "acceptance_criteria": [
+          "User can start a timer of configurable length (e.g., 60 seconds) from the set entry screen",
+          "Timer counts down visibly and triggers a sound/vibration when it reaches zero",
+          "Timer can be paused or reset"
+        ]
+      },
+      {
+        "role": "registered user",
+        "want": "receive daily workout reminder notifications",
+        "acceptance_criteria": [
+          "User can enable/disable reminders and set a preferred time in settings",
+          "When enabled, a push notification is sent at the configured time even if the app is closed",
+          "Tapping the notification opens the app to the 'New Workout' screen"
+        ]
+      },
+      {
+        "role": "registered user",
+        "want": "view and edit my personal records (e.g., max weight for squat)",
+        "acceptance_criteria": [
+          "PR page lists each exercise with the highest weight recorded across all sets",
+          "Tapping a record opens a modal showing the workout date and details",
+          "User can manually edit a record and the change persists"
+        ]
+      },
+      {
+        "role": "guest (unauthenticated) user",
+        "want": "explore the app in offline mode",
+        "acceptance_criteria": [
+          "Guest can navigate to the home screen and view static demo data",
+          "All write actions (log workout, start timer) are disabled with a prompt to log in",
+          "Offline mode works without network connectivity"
+        ]
+      }
+    ],
+    "non_functional_requirements": {
+      "authentication": "required \u2014 JWT is used to protect all user\u2011specific endpoints",
+      "authorization": "users can only access and modify their own workouts, exercises, and records",
+      "pagination": "required on the workouts list endpoint (page size configurable)",
+      "search": "exercise names can be searched when adding to a workout",
+      "file_uploads": "no \u2014 the app does not handle media files",
+      "real_time": "no \u2014 timer runs locally in the client; no server push needed"
+    },
+    "data_entities_detail": [
+      {
+        "name": "User",
+        "description": "Stores account credentials and preferences",
+        "key_fields": [
+          "id",
+          "email",
+          "hashed_password",
+          "reminder_enabled",
+          "reminder_time"
+        ],
+        "relationships": [
+          "has many Workouts",
+          "has many PersonalRecords"
+        ]
+      },
+      {
+        "name": "Workout",
+        "description": "A single training session logged by a user",
+        "key_fields": [
+          "id",
+          "user_id",
+          "date",
+          "notes"
+        ],
+        "relationships": [
+          "belongs to User",
+          "has many ExerciseEntries"
+        ]
+      },
+      {
+        "name": "ExerciseEntry",
+        "description": "An exercise performed within a workout",
+        "key_fields": [
+          "id",
+          "workout_id",
+          "exercise_name"
+        ],
+        "relationships": [
+          "belongs to Workout",
+          "has many Set"
+        ]
+      },
+      {
+        "name": "Set",
+        "description": "One set of reps and weight for an exercise",
+        "key_fields": [
+          "id",
+          "exercise_entry_id",
+          "set_number",
+          "reps",
+          "weight"
+        ],
+        "relationships": [
+          "belongs to ExerciseEntry"
+        ]
+      },
+      {
+        "name": "PersonalRecord",
+        "description": "Highest weight/reps achieved for a given exercise across all workouts",
+        "key_fields": [
+          "id",
+          "user_id",
+          "exercise_name",
+          "max_weight",
+          "max_reps",
+          "record_date"
+        ],
+        "relationships": [
+          "belongs to User"
+        ]
+      }
+    ],
+    "out_of_scope": [
+      "Social sharing of workouts",
+      "Integration with third\u2011party wearables or fitness APIs",
+      "AI\u2011driven workout recommendations",
+      "Multi\u2011language support"
+    ]
+  },
+  "architecture": {
+    "api_endpoints": [
+      {
+        "method": "POST",
+        "path": "/auth/register",
+        "description": "Create a new user account and return JWT token",
+        "file": "app\\routes\\auth_routes.py"
+      },
+      {
+        "method": "POST",
+        "path": "/auth/login",
+        "description": "Authenticate user credentials and return JWT token",
+        "file": "app\\routes\\auth_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/users/me",
+        "description": "Retrieve the authenticated user's profile and preferences",
+        "file": "app\\routes\\user_routes.py"
+      },
+      {
+        "method": "PATCH",
+        "path": "/users/me",
+        "description": "Update user preferences such as reminder settings",
+        "file": "app\\routes\\user_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/workouts",
+        "description": "List workouts for the authenticated user with pagination (query: page, size)",
+        "file": "app\\routes\\workout_routes.py"
+      },
+      {
+        "method": "POST",
+        "path": "/workouts",
+        "description": "Create a new workout (date, notes) for the authenticated user",
+        "file": "app\\routes\\workout_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/workouts/{id}",
+        "description": "Retrieve a specific workout with its exercises and sets",
+        "file": "app\\routes\\workout_routes.py"
+      },
+      {
+        "method": "PUT",
+        "path": "/workouts/{id}",
+        "description": "Update workout details (date, notes) for the owner",
+        "file": "app\\routes\\workout_routes.py"
+      },
+      {
+        "method": "DELETE",
+        "path": "/workouts/{id}",
+        "description": "Delete a workout and all its related exercise entries and sets",
+        "file": "app\\routes\\workout_routes.py"
+      },
+      {
+        "method": "POST",
+        "path": "/workouts/{workout_id}/exercises",
+        "description": "Add an exercise entry (name) to a workout",
+        "file": "app\\routes\\exercise_entry_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/personal_records",
+        "description": "List personal records for the authenticated user",
+        "file": "app\\routes\\personal_record_routes.py"
+      },
+      {
+        "method": "PATCH",
+        "path": "/personal_records/{id}",
+        "description": "Edit a personal record (max_weight, max_reps, record_date)",
+        "file": "app\\routes\\personal_record_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/stats/weekly_volume",
+        "description": "Return total volume per week for the past 8 weeks for charting",
+        "file": "app\\routes\\stats_routes.py"
+      },
+      {
+        "method": "GET",
+        "path": "/stats/exercise_aggregates",
+        "description": "Return max weight, max reps, and total volume per exercise for the authenticated user",
+        "file": "app\\routes\\stats_routes.py"
+      }
+    ],
+    "database_schema": [
+      {
+        "table_name": "users",
+        "columns": [
+          {
+            "name": "id",
+            "type": "Integer",
+            "is_primary_key": true,
+            "is_nullable": false
+          },
+          {
+            "name": "email",
+            "type": "String",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "hashed_password",
+            "type": "String",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "reminder_enabled",
+            "type": "Boolean",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "reminder_time",
+            "type": "String",
+            "is_primary_key": false,
+            "is_nullable": true
+          }
+        ]
+      },
+      {
+        "table_name": "workouts",
+        "columns": [
+          {
+            "name": "id",
+            "type": "Integer",
+            "is_primary_key": true,
+            "is_nullable": false
+          },
+          {
+            "name": "user_id",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "date",
+            "type": "DateTime",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "notes",
+            "type": "Text",
+            "is_primary_key": false,
+            "is_nullable": true
+          }
+        ]
+      },
+      {
+        "table_name": "exercise_entries",
+        "columns": [
+          {
+            "name": "id",
+            "type": "Integer",
+            "is_primary_key": true,
+            "is_nullable": false
+          },
+          {
+            "name": "workout_id",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "exercise_name",
+            "type": "String",
+            "is_primary_key": false,
+            "is_nullable": false
+          }
+        ]
+      },
+      {
+        "table_name": "sets",
+        "columns": [
+          {
+            "name": "id",
+            "type": "Integer",
+            "is_primary_key": true,
+            "is_nullable": false
+          },
+          {
+            "name": "exercise_entry_id",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "set_number",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "reps",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "weight",
+            "type": "Float",
+            "is_primary_key": false,
+            "is_nullable": false
+          }
+        ]
+      },
+      {
+        "table_name": "personal_records",
+        "columns": [
+          {
+            "name": "id",
+            "type": "Integer",
+            "is_primary_key": true,
+            "is_nullable": false
+          },
+          {
+            "name": "user_id",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "exercise_name",
+            "type": "String",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "max_weight",
+            "type": "Float",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "max_reps",
+            "type": "Integer",
+            "is_primary_key": false,
+            "is_nullable": false
+          },
+          {
+            "name": "record_date",
+            "type": "DateTime",
+            "is_primary_key": false,
+            "is_nullable": false
+          }
+        ]
+      }
+    ],
+    "folder_structure": {
+      "backend": [
+        "app/models",
+        "app/schemas",
+        "app/routes",
+        "app/services",
+        "app/utils",
+        "app/dependencies",
+        "app/config"
+      ]
+    },
+    "frontend_structure": {
+      "pages": [
+        "HomePage",
+        "LoginPage",
+        "RegisterPage",
+        "WorkoutListPage",
+        "WorkoutDetailPage",
+        "NewWorkoutPage",
+        "PersonalRecordsPage",
+        "StatsPage",
+        "SettingsPage"
+      ],
+      "components": [
+        "Header",
+        "Footer",
+        "WorkoutCard",
+        "ExerciseForm",
+        "SetRow",
+        "Chart",
+        "SearchBar",
+        "Pagination",
+        "ReminderToggle",
+        "Modal",
+        "Timer"
+      ]
+    }
+  },
+  "provider": "auto",
+  "generated_at": "2026-06-23T01:13:33.348617",
+  "generation_time_seconds": 21.18,
+  "version": "1.0"
+}
