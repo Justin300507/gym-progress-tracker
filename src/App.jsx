@@ -12,7 +12,7 @@ import PersonalRecordsPage from './pages/PersonalRecordsPage';
 import StatsPage from './pages/StatsPage';
 import SettingsPage from './pages/SettingsPage';
 
-const API = axios.create({ baseURL: 'http://localhost:8000' });
+const API = axios.create({ baseURL: '' });
 API.interceptors.request.use(cfg => {
   const token = localStorage.getItem('token');
   if (token) cfg.headers.Authorization = `Bearer ${token}`;
