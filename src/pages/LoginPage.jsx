@@ -4,15 +4,23 @@ import { Link, useNavigate } from 'react-router-dom';
 const LoginPage = ({ API }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
       const res = await API.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.access_token);
       navigate('/dashboard');
-    } catch (e) {}
+    } catch (e) {
+      setError(e.response?.data?.detail || 'Login failed. Check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,7 +42,8 @@ const LoginPage = ({ API }) => {
             <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="input" />
           </div>
-          <button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded w-full">Sign In</button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button type="submit" disabled={loading} className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded w-full">{loading ? 'Signing in...' : 'Sign In'}</button>
         </form>
         <p className="text-center text-sm text-slate-500 mt-4">
           Don't have an account? <Link to="/register" className="text-indigo-600 font-medium hover:underline">Sign up</Link>

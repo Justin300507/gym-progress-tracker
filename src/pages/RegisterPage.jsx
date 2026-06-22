@@ -2,17 +2,26 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const RegisterPage = ({ API }) => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const res = await API.post('/auth/register', { email, password });
+      const res = await API.post('/auth/register', { username, email, password });
       localStorage.setItem('token', res.data.access_token);
       navigate('/dashboard');
-    } catch (e) {}
+    } catch (e) {
+      setError(e.response?.data?.detail || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,14 +36,19 @@ const RegisterPage = ({ API }) => {
         </div>
         <form className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Username</label>
+            <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="yourname" className="input" required />
+          </div>
+          <div className="space-y-1">
             <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="input" />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="input" required />
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="input" />
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="input" required />
           </div>
-          <button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded w-full">Sign Up</button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button type="submit" disabled={loading} className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded w-full">{loading ? 'Creating account...' : 'Sign Up'}</button>
         </form>
         <p className="text-center text-sm text-slate-500 mt-4">
           Already have an account? <Link to="/login" className="text-indigo-600 font-medium hover:underline">Sign in</Link>
