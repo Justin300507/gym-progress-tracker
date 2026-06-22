@@ -9,10 +9,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     username = Column(String, nullable=False, default="")
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
     reminder_enabled = Column(Boolean, nullable=False, default=False)
     reminder_time = Column(String, nullable=True)
-
-    workouts = relationship("Workout", back_populates="user")
-    personal_records = relationship("PersonalRecords", back_populates="user")

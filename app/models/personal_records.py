@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 from app.database import Base
+
 
 class PersonalRecords(Base):
     __tablename__ = "personal_records"
@@ -13,7 +13,5 @@ class PersonalRecords(Base):
     max_reps = Column(Integer, nullable=False)
     record_date = Column(DateTime, nullable=False)
 
-    user = relationship("User", back_populates="personal_records")
 
-# Alias for compatibility with imports expecting `Personal_records`
 Personal_records = PersonalRecords

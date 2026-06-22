@@ -12,5 +12,4 @@ class Workout(Base):
     date = Column(DateTime, nullable=False)
     notes = Column(Text)
 
-    user = relationship("User", back_populates="workouts")
-    exercise_entries = relationship("ExerciseEntry", back_populates="workout", cascade="all, delete-orphan")
+    exercise_entries = relationship("ExerciseEntry", cascade="all, delete-orphan")

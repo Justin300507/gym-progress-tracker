@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.database import get_db
@@ -62,9 +62,6 @@ def get_workout(
     """Retrieve a specific workout with its exercises and sets."""
     workout = (
         db.query(Workout)
-        .options(
-            joinedload(Workout.exercise_entries).joinedload(ExerciseEntry.sets)
-        )
         .filter(Workout.id == workout_id, Workout.user_id == current_user.id)
         .first()
     )
