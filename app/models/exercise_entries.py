@@ -11,4 +11,5 @@ class ExerciseEntry(Base):
     workout_id = Column(Integer, ForeignKey("workouts.id"), nullable=False)
     exercise_name = Column(String, nullable=False)
 
-    workout = relationship("Workout")
+    workout = relationship("Workout", back_populates="exercise_entries")
+    sets = relationship("Set", back_populates="exercise_entry", cascade="all, delete-orphan")

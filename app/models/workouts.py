@@ -13,3 +13,4 @@ class Workout(Base):
     notes = Column(Text)
 
     user = relationship("User", back_populates="workouts")
+    exercise_entries = relationship("ExerciseEntry", back_populates="workout", cascade="all, delete-orphan")

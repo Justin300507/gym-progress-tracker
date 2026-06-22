@@ -12,4 +12,4 @@ class Set(Base):
     reps = Column(Integer, nullable=False)
     weight = Column(Float, nullable=False)
 
-    exercise_entry = relationship("ExerciseEntry")
+    exercise_entry = relationship("ExerciseEntry", back_populates="sets")
